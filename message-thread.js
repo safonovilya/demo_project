@@ -1,35 +1,44 @@
 var Class = require('./class');
 
 exports.Thread = Class.extend({
-    init: function() {
-        this.messages = [];
+    init: function( message ) {
+        this.message = message;
+        this.child = []; // Threads
     },
 
-    add: function( m ) {
-        this.messages[this.messages.length] = (m);
+    add: function( child ) {
+        this.child[this.child.length] = child;
     },
 
-    getItems: function() {
-        return this.messages;
+    getChild: function(index){
+        return this.child[index];
     }
 });
 
 exports.Message = Class.extend({
-    init: function() {
-        this.subThread = false;
+    init: function(text, authtor) {
+
+        this.msg_text = text;
+        this.authtor = authtor;
+
+        this.thread = false;
     },
 
-    getSubThread: function(){
-        return this.subThread;
+    getThread: function(){
+        return this.thread;
     },
 
     addResponse: function(msg){
 
-        if (!this.getSubThread()){
-            this.subThread = new exports.Thread();
+        if (!this.getThread()){
+            this.thread = new exports.Thread();
         }
 
-        this.subThread.add(msg);
+        this.thread.add(msg);
+    },
+
+    getText: function(){
+        return this.msg_text;
     }
 
 });
