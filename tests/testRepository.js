@@ -65,7 +65,6 @@ exports.repositoryTest = {
                 self.repository.insertThread(subThreadChild, function(threadSubChildInDB){
                     self.repository.findThreadByID(threadInDB[0].id, function(threadTree){
                         test.equals(threadTree.getChild(0).getChildCount(), 1);
-                        //console.log(threadTree.getChild(0));
                         test.done();
                     });
                 });

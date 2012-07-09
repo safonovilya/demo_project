@@ -31,14 +31,5 @@ exports.Thread = Class.extend({
 
     getText: function(){
         return this.msgText;
-    },
-    getChildrenByID: function(id){
-        for( var i = 0; i < this.child.length; i++){
-            console.log(id);
-            console.log(this.child[i]);
-            if ( this.child[i].toString() == id.toString() ){
-                return this.child[i];
-            }
-        }
     }
 });

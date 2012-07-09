@@ -38,7 +38,6 @@ exports.Repository = Class.extend({
                             thread.id = id;
                             docs.splice(i,1);
                             thread = self.buildTree(thread,docs);
-                            console.log(thread);
                             callback(thread);
                             break;
                         };
