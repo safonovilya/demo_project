@@ -11,34 +11,34 @@ exports.Repository = Class.extend({
 
     insertThread: function(thread, callback){
 
-        this.client.collection('threads', function(err, collection){
-            collection.insert(thread ,function(err,docs){
-                if (err) {
-                    this.close();
-                    throw err;
-                }
+        this.client.collection('threads', function(error, collection){
+            if (error) { callback(error); }
+            collection.insert(thread ,function(error, docs){
+                if (error) { callback(error); }
                 var threads = [];
                 for (var i = 0; i<docs.length; i++){
                     thread.id = docs[i]._id;
                     threads[threads.length] = thread;
                 }
-                callback(threads);
+                callback(null, threads);
             });
         });
     },
-    findThreadByID: function(id,callback){
+    findThreadByID: function(id, callback){
         var self = this;
-        this.client.collection('threads', function(err, collection){
+        this.client.collection('threads', function(error, collection){
+            if (error) { callback(error); }
             collection.find( {$or : [{_id: id},{parentID: id}, {parents: id.toString()}]}, {}, function(err, cursor){
 
-                cursor.toArray(function(err, docs){
+                cursor.toArray(function(error, docs){
+                    if (error) { callback(error); }
                     for(var i = 0; i < docs.length; i++){
                         if (docs[i]._id.toString() == id){
                             var thread = new t.Thread(docs[i].msgText, docs[i].author);
                             thread.id = id;
                             docs.splice(i,1);
                             thread = self.buildTree(thread,docs);
-                            callback(thread);
+                            callback(null, thread);
                             break;
                         };
                     }
@@ -69,9 +69,12 @@ exports.Repository = Class.extend({
     open: function(callback){
         var self = this;
         this.db.open(function(error, client){
-            if (error) throw error;
-            self.client = client;
-            callback();
+            if (error) {
+                callback (error);
+            } else {
+                self.client = client;
+                callback(null);
+            }
         });
     },
 
