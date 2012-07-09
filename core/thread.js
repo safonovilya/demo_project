@@ -1,9 +1,10 @@
 var Class = require('./../libs/class');
 
 exports.Thread = Class.extend({
-    init: function( msgText, author ) {
+    init: function( msgText, author, parentID ) {
         this.msgText = msgText;
         this.author = author;
+        this.parentID = parentID;
         this.child = []; // Threads
     },
 

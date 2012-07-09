@@ -1,4 +1,5 @@
 var Class = require('./../libs/class');
+var t = require('./../core/thread');
 var mongodb = require('mongodb');
 
 
@@ -9,26 +10,59 @@ exports.Repository = Class.extend({
     },
 
     insertThread: function(thread, callback){
+
         this.client.collection('threads', function(err, collection){
             collection.insert(thread ,function(err,docs){
-                docs.each(function(err, doc){
-                    var thread = new Thread(docs[0].msgText, docs[0].author);
-                    thread.id = docs[0]._id;
+                if (err) {
+                    this.close();
+                    throw err;
+                }
+                var threads = [];
+                for (var i = 0; i<docs.length; i++){
+                    var thread = new t.Thread(docs[i].msgText, docs[i].author, docs[0].parentID);
+                    thread.id = docs[i]._id;
                     // TODO: собрать детей each(docs[0].child, function(child){thread.addChild(child);})
+                    threads[threads.length] = thread;
+                }
+                callback(threads);
+            });
+        });
+    },
+    findThreadByID: function(id,callback){
+        this.client.collection('threads', function(err, collection){
+            collection.find( {$or : [{_id: id},{parentID: id}]}, {}, function(err, cursor){
+
+                var threads = cursor.toArray(function(err, docs){
+                    var childs = [];
+                    var thread = new t.Thread();
+
+                    for(var i = 0; i < docs.length; i++){
+                        if (docs[i]._id.toString() == id){
+                            thread.msgText = docs[i].msgText;
+                            thread.author = docs[i].author;
+                            thread.id = docs[i]._id;
+                        } else {
+                            var threadChild = new t.Thread(docs[i].msgText, docs[i].author, docs[i].parentID);
+                            threadChild.id = docs[i]._id;
+                            childs[childs.length] = threadChild;
+                        }
+                    }
+                    for (var i = 0; i < childs.length; i++){
+                        if (childs[i].parentID.toString() == id){
+                            thread.addChild(childs[i]);
+                        } else {
+                            // TODO: subChild
+                        }
+                    }
                     callback(thread);
                 });
             });
         });
     },
 
-    findThreadByID: function(id,callback){
-        this.client.collection('threads', function(err, collection){
-            collection.find({_id:id}, {limit:1}, function(err, docs){
-                    docs.toArray(function(err, docs){
-                        callback(docs[0]);
-                    });
-            });
-        });
+    updateThread: function(thread, callback){
+
+
     },
 
     open: function(callback){
@@ -40,8 +74,8 @@ exports.Repository = Class.extend({
         });
     },
 
-    close: function(){
-        this.client.close();
+    close: function(done){
+        this.client.close(done);
     }
 
 });
