@@ -19,9 +19,7 @@ exports.Repository = Class.extend({
                 }
                 var threads = [];
                 for (var i = 0; i<docs.length; i++){
-                    var thread = new t.Thread(docs[i].msgText, docs[i].author, docs[0].parentID);
                     thread.id = docs[i]._id;
-                    // TODO: собрать детей each(docs[0].child, function(child){thread.addChild(child);})
                     threads[threads.length] = thread;
                 }
                 callback(threads);
@@ -32,28 +30,32 @@ exports.Repository = Class.extend({
         this.client.collection('threads', function(err, collection){
             collection.find( {$or : [{_id: id},{parentID: id}]}, {}, function(err, cursor){
 
-                var threads = cursor.toArray(function(err, docs){
-                    var childs = [];
-                    var thread = new t.Thread();
+                cursor.toArray(function(err, docs){
 
+                    var subChildren = [];
+                    var thread = new t.Thread();
+                    thread.id = id;
                     for(var i = 0; i < docs.length; i++){
                         if (docs[i]._id.toString() == id){
                             thread.msgText = docs[i].msgText;
                             thread.author = docs[i].author;
-                            thread.id = docs[i]._id;
                         } else {
-                            var threadChild = new t.Thread(docs[i].msgText, docs[i].author, docs[i].parentID);
+                            var threadChild = new t.Thread(docs[i].msgText, docs[i].author, thread);
                             threadChild.id = docs[i]._id;
-                            childs[childs.length] = threadChild;
+                            if (threadChild.parentID.toString() == id){
+                                thread.addChild(threadChild);
+                            } else {
+                                // TODO: add to threadChildren subChildren
+                                subChildren[subChildren.length] = threadChild;
+                            }
                         }
                     }
-                    for (var i = 0; i < childs.length; i++){
-                        if (childs[i].parentID.toString() == id){
-                            thread.addChild(childs[i]);
-                        } else {
-                            // TODO: subChild
-                        }
+                    for(var i = 0; i < subChildren.length; i++){
+                        console.log(subChildren[i].parentID);
+                        console.log(thread.getChildrenByID(subChildren[i].parentID));
+                        thread.getChildrenByID(subChildren[i].parentID).addChild(subChildren);
                     }
+
                     callback(thread);
                 });
             });

@@ -16,10 +16,10 @@ exports.repositoryTest = {
     testThreadInsert: function(test){
         var self = this;
         var thread = new t.Thread('msg','author');
-        self.repository.insertThread(thread, function(threadInDBs){
-            for (var i = 0; i < threadInDBs.length; i++  ){
+        self.repository.insertThread(thread, function(threadsInDB){
+            for (var i = 0; i < threadsInDB.length; i++  ){
                 (function (i){
-                    self.repository.findThreadByID(threadInDBs[i].id, function(threadsFound){
+                    self.repository.findThreadByID(threadsInDB[i].id, function(threadsFound){
                         test.equals(threadsFound.msgText, thread.msgText);
                         test.done();
                     });
@@ -32,7 +32,7 @@ exports.repositoryTest = {
         var self = this;
         var thread = new t.Thread('msg', 'author');
         self.repository.insertThread(thread, function(threadInDB){
-            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0].id);
+            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
             self.repository.insertThread(threadChild,function(threadChildInDB){
                 test.equals(threadChildInDB[0].parentID, threadInDB[0].id);
                 test.done();
@@ -45,11 +45,28 @@ exports.repositoryTest = {
         var self = this,
             thread = new t.Thread('msg', 'author');
         self.repository.insertThread(thread, function(threadInDB){
-            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0].id);
+            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
             self.repository.insertThread(threadChild,function(threadChildInDB){
                 self.repository.findThreadByID(threadInDB[0].id, function(threadTree){
                     test.equals(threadTree.getChild(0).parentID.toString(), threadChildInDB[0].parentID.toString());
                     test.done();
+                });
+            });
+        });
+    },
+
+    testThreadConstructSubChild: function(test){
+        var self = this,
+            thread = new t.Thread('msg', 'author');
+        self.repository.insertThread(thread, function(threadInDB){
+            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
+            self.repository.insertThread(threadChild,function(threadChildInDB){
+                var subthreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB[0]);
+                self.repository.insertThread(threadChild,function(threadSubChildInDB){
+                    self.repository.findThreadByID(threadInDB[0].id, function(threadTree){
+                        test.equals(threadTree.getChild(0).parentID.toString(), threadChildInDB[0].parentID.toString());
+                        test.done();
+                    });
                 });
             });
         });
