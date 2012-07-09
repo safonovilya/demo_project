@@ -8,7 +8,8 @@ exports.Thread = Class.extend({
             var temp = parentThread.id;
             this.parentID = temp;
             this.parents = [];
-            this.parents.push(parentThread.id)
+            this.parents.push(parentThread.id.toString());
+            this.parents = this.parents.concat(parentThread.parents);
         } else {
             this.parentID = null;
             this.parents = [];

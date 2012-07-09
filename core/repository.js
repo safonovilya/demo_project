@@ -27,39 +27,39 @@ exports.Repository = Class.extend({
         });
     },
     findThreadByID: function(id,callback){
+        var self = this;
         this.client.collection('threads', function(err, collection){
-            collection.find( {$or : [{_id: id},{parentID: id}]}, {}, function(err, cursor){
+            collection.find( {$or : [{_id: id},{parentID: id}, {parents: id.toString()}]}, {}, function(err, cursor){
 
                 cursor.toArray(function(err, docs){
-
-                    var subChildren = [];
-                    var thread = new t.Thread();
-                    thread.id = id;
                     for(var i = 0; i < docs.length; i++){
                         if (docs[i]._id.toString() == id){
-                            thread.msgText = docs[i].msgText;
-                            thread.author = docs[i].author;
-                        } else {
-                            var threadChild = new t.Thread(docs[i].msgText, docs[i].author, thread);
-                            threadChild.id = docs[i]._id;
-                            if (threadChild.parentID.toString() == id){
-                                thread.addChild(threadChild);
-                            } else {
-                                // TODO: add to threadChildren subChildren
-                                subChildren[subChildren.length] = threadChild;
-                            }
-                        }
+                            var thread = new t.Thread(docs[i].msgText, docs[i].author);
+                            thread.id = id;
+                            docs.splice(i,1);
+                            thread = self.buildTree(thread,docs);
+                            console.log(thread);
+                            callback(thread);
+                            break;
+                        };
                     }
-                    for(var i = 0; i < subChildren.length; i++){
-                        console.log(subChildren[i].parentID);
-                        console.log(thread.getChildrenByID(subChildren[i].parentID));
-                        thread.getChildrenByID(subChildren[i].parentID).addChild(subChildren);
-                    }
-
-                    callback(thread);
                 });
             });
         });
+    },
+
+    buildTree: function(rootThread, arrayDocs){
+        for(var i = 0; i < arrayDocs.length; i++){
+            if (arrayDocs[i].parentID.toString() == rootThread.id){
+                var thread = new t.Thread(arrayDocs[i].msgText, arrayDocs[i].author, rootThread);
+                thread.id = arrayDocs[i]._id;
+                arrayDocs.splice(i,1);
+                thread = this.buildTree(thread,arrayDocs);
+                rootThread.addChild(thread);
+            }
+        }
+
+        return rootThread;
     },
 
     updateThread: function(thread, callback){

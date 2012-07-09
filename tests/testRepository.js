@@ -60,11 +60,12 @@ exports.repositoryTest = {
             thread = new t.Thread('msg', 'author');
         self.repository.insertThread(thread, function(threadInDB){
             var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
-            self.repository.insertThread(threadChild,function(threadChildInDB){
-                var subthreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB[0]);
-                self.repository.insertThread(threadChild,function(threadSubChildInDB){
+            self.repository.insertThread(threadChild, function(threadChildInDB){
+                var subThreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB[0]);
+                self.repository.insertThread(subThreadChild, function(threadSubChildInDB){
                     self.repository.findThreadByID(threadInDB[0].id, function(threadTree){
-                        test.equals(threadTree.getChild(0).parentID.toString(), threadChildInDB[0].parentID.toString());
+                        test.equals(threadTree.getChild(0).getChildCount(), 1);
+                        //console.log(threadTree.getChild(0));
                         test.done();
                     });
                 });
