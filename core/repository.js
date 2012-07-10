@@ -1,6 +1,7 @@
 var Class = require('./../libs/class');
 var t = require('./../core/thread');
 var mongodb = require('mongodb');
+var async = require('async');
 
 
 exports.Repository = Class.extend({
@@ -10,41 +11,51 @@ exports.Repository = Class.extend({
     },
 
     insertThread: function(thread, callback){
-
-        this.client.collection('threads', function(error, collection){
-            if (error) { callback(error); }
-            collection.insert(thread ,function(error, docs){
-                if (error) { callback(error); }
-                var threads = [];
-                for (var i = 0; i<docs.length; i++){
-                    thread.id = docs[i]._id;
-                    threads[threads.length] = thread;
+        var self = this;
+        async.waterfall([
+                function(callback) {
+                    self.client.collection('threads', callback);
+                },
+                function(collection, callback) {
+                    collection.insert(thread, callback);
+                },
+                function(docs, callback) {
+                    thread.id = docs[0]._id;
+                    callback(null, thread);
                 }
-                callback(null, threads);
-            });
-        });
+            ],
+            callback
+        );
     },
     findThreadByID: function(id, callback){
         var self = this;
-        this.client.collection('threads', function(error, collection){
-            if (error) { callback(error); }
-            collection.find( {$or : [{_id: id},{parentID: id}, {parents: id.toString()}]}, {}, function(err, cursor){
 
-                cursor.toArray(function(error, docs){
-                    if (error) { callback(error); }
+        async.waterfall(
+            [
+                function(callback){
+                    self.client.collection('threads', callback);
+                },
+                function(collection, callback){
+                    collection.find({$or: [{_id: id}, {parentID: id}, {parents: id.toString()}]}, {}, callback);
+                },
+                function(cursor, callback){
+                    cursor.toArray(callback);
+                },
+                function(docs){
                     for(var i = 0; i < docs.length; i++){
                         if (docs[i]._id.toString() == id){
                             var thread = new t.Thread(docs[i].msgText, docs[i].author);
                             thread.id = id;
-                            docs.splice(i,1);
+                            docs.splice(i, 1);
                             thread = self.buildTree(thread,docs);
                             callback(null, thread);
                             break;
-                        };
+                        }
                     }
-                });
-            });
-        });
+                }
+            ],
+            callback
+        );
     },
 
     buildTree: function(rootThread, arrayDocs){
@@ -57,14 +68,9 @@ exports.Repository = Class.extend({
                 rootThread.addChild(thread);
             }
         }
-
         return rootThread;
     },
 
-    updateThread: function(thread, callback){
-
-
-    },
 
     open: function(callback){
         var self = this;
@@ -78,8 +84,8 @@ exports.Repository = Class.extend({
         });
     },
 
-    close: function(done){
-        this.client.close(done);
+    close: function(callback){
+        this.client.close(callback);
     }
 
 });

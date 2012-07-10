@@ -1,5 +1,7 @@
 var t = require('./../core/thread');
+var async = require('async');
 var r = require('./../core/repository');
+
 exports.repositoryTest = {
 
     setUp: function(done) {
@@ -19,105 +21,101 @@ exports.repositoryTest = {
 
     testThreadInsert: function(test){
         var self = this;
+
         var thread = new t.Thread('msg','author');
-        self.repository.insertThread(thread, function(error, threadsInDB){
-            if (error){
-                test.ok(false);
-                test.done();
-            }
-            for (var i = 0; i < threadsInDB.length; i++  ){
-                (function (i){
-                    self.repository.findThreadByID(threadsInDB[i].id, function(error, threadsFound){
-                        if (error){
-                            test.ok(false);
-                            test.done();
-                        }
-                        test.equals(threadsFound.msgText, thread.msgText);
-                        test.done();
-                    });
-                })(i);
-            }
-        });
+        async.waterfall([
+                function(callback) {
+                    self.repository.insertThread(thread, callback);
+                },
+                function(threadInDB, callback) {
+                    self.repository.findThreadByID(threadInDB.id, callback);
+                },
+                function(threadFound, callback) {
+                    test.equals(threadFound.msgText, thread.msgText);
+                    callback();
+                }
+            ],
+            test.done
+        );
     },
 
     testThreadSaveTree: function(test){
         var self = this;
         var thread = new t.Thread('msg', 'author');
-        self.repository.insertThread(thread, function(error, threadInDB){
-            if (error){
-                test.ok(false);
-                test.done();
+        async.waterfall([
+            function(callback){
+                self.repository.insertThread(thread, callback);
+            },
+            function(threadInDB, callback){
+                thread = threadInDB;
+                var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
+                self.repository.insertThread(threadChild, callback);
+            },
+            function(threadChildInDB, callback){
+                test.equals(threadChildInDB.parentID, thread.id);
+                callback();
             }
-            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
-            self.repository.insertThread(threadChild,function(errror, threadChildInDB){
-                if (error){
-                    test.ok(false);
-                    test.done();
-                }
-                test.equals(threadChildInDB[0].parentID, threadInDB[0].id);
-                test.done();
-                self.repository.close();
-            });
-        });
+        ],
+        test.done
+        );
     },
 
     testThreadConstruct: function(test){
         var self = this,
-            thread = new t.Thread('msg', 'author');
-        self.repository.insertThread(thread, function(error, threadInDB){
-            if (error){
-                test.ok(false);
-                test.done();
-            }
-            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
-            self.repository.insertThread(threadChild,function(error, threadChildInDB){
-                if (error){
-                    test.ok(false);
-                    test.done();
+            thread = new t.Thread('msg', 'author'),
+            threadChild;
+
+        async.waterfall(
+            [
+                function(callback){
+                    self.repository.insertThread(thread, callback);
+                },
+                function(threadInDB, callback){
+                    thread = threadInDB;
+                    var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
+                    self.repository.insertThread(threadChild, callback);
+                },
+                function(threadChildInDB, callback){
+                    threadChild = threadChildInDB;
+                    self.repository.findThreadByID(thread.id, callback);
+                },
+                function(threadTree, callback){
+                    test.equals(threadTree.getChild(0).parentID.toString(), threadChild.parentID.toString());
+                    callback();
                 }
-                self.repository.findThreadByID(threadInDB[0].id, function(error, threadTree){
-                    if (error){
-                        test.ok(false);
-                        test.done();
-                    }
-                    test.equals(threadTree.getChild(0).parentID.toString(), threadChildInDB[0].parentID.toString());
-                    test.done();
-                });
-            });
-        });
-    },
+            ],
+            test.done
+        );
+   },
 
     testThreadConstructSubChild: function(test){
         var self = this,
             thread = new t.Thread('msg', 'author');
-        self.repository.insertThread(thread, function(error, threadInDB){
-            if (error){
-                test.ok(false);
-                test.done();
-            }
-            var threadChild = new t.Thread('reMsg', 'new author', threadInDB[0]);
-            self.repository.insertThread(threadChild, function(error, threadChildInDB){
-                if (error){
-                    test.ok(false);
-                    test.done();
+
+        async.waterfall(
+            [
+                function(callback){
+                    self.repository.insertThread(thread, callback);
+                },
+                function(threadInDB, callback){
+                    thread = threadInDB;
+                    var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
+                    self.repository.insertThread(threadChild, callback);
+                },
+                function(threadChildInDB, callback){
+                    var subThreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB);
+                    self.repository.insertThread(subThreadChild, callback);
+                },
+                function(threadSubChildInDB, callback){
+                    self.repository.findThreadByID(thread.id, callback);
+                },
+                function(threadTree, callback){
+                    test.equals(threadTree.getChild(0).getChildCount(), 1);
+                    callback();
                 }
-                var subThreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB[0]);
-                self.repository.insertThread(subThreadChild, function(error, threadSubChildInDB){
-                    if (error){
-                        test.ok(false);
-                        test.done();
-                    }
-                    self.repository.findThreadByID(threadInDB[0].id, function(error, threadTree){
-                        if (error){
-                            test.ok(false);
-                            test.done();
-                        }
-                        test.equals(threadTree.getChild(0).getChildCount(), 1);
-                        test.done();
-                    });
-                });
-            });
-        });
+            ],
+            test.done
+        );
     }
 };
 /*
