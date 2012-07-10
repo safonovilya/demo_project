@@ -1,0 +1,7 @@
+<div id="comments">{{partial({thread: thread}) 'thread'}}</div>
+<div id="editor">
+	<label for="message">Message:</label>
+	<textarea name="msgText" id="message" cols="30" rows="5"></textarea>
+	<label for="author">Author:</label>
+	<input type="text" class="author" name="author" />
+</div>

@@ -1,0 +1,10 @@
+<b>${thread.msgText}</b>&nbsp-&nbsp<i>${thread.author}</i>
+{{if thread.getChildCount() > 0 }}
+    <ul>
+        {{each(i, subThread) thread.child}}
+            <li>
+                {{partial({thread: subThread}) 'thread'}}
+            </li>
+        {{/each}}
+    </ul>
+{{/if}}

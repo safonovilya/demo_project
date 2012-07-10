@@ -1,0 +1,104 @@
+
+/* Variables */
+@link_color: #00B7FF;
+@font:  14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@habr_color: #996;
+@input_text_height: 22px;
+
+.rounded_corners (@radius: 5px) {
+    -moz-border-radius: @radius;
+    -webkit-border-radius: @radius;
+    border-radius: @radius;
+}
+
+body {
+    padding: 50px;
+    width: 600px;
+    margin: 0 auto;
+    font: @font;
+    a {
+        color: @link_color;
+    }
+    .rounded_corners;
+    #comments{
+        background-color: #BADFE4;
+        .rounded_corners(15);
+        padding: 15px;
+    }
+}
+.editor_inputs(){
+    width: 90%;
+    margin: 2px 5% 2px 5%;
+    color: @habr_color;
+}
+
+#editor{
+    background-color: #E6DE8D;
+    padding: 15px;
+    .rounded_corners(15);
+    .author{
+        height: @input_text_height/2+8;
+        font-size: @input_text_height/2;
+        line-height: @input_text_height/2+8;
+        .editor_inputs;
+    }
+    #message{
+        font-size: @input_text_height;
+        line-height: @input_text_height+8;
+        .editor_inputs;
+    }
+}
+
+
+/********  Examples **********/
+@brand_color: #4D926F;
+
+
+#header {
+    color: @brand_color;
+}
+
+h2 {
+    color: @brand_color;
+}
+
+/* Mixins */
+
+#header {
+  .rounded_corners;
+}
+
+#footer {
+  .rounded_corners(10px);
+}
+
+/* Nested Rules */
+#header {
+  color: red;
+  a {
+    font-weight: bold;
+    text-decoration: none;
+    &:hover {
+        color: #000;
+        text-decoration: underline;
+    }
+  }
+}
+
+/* Operations */
+@the-border: 1px;
+@base-color: #111;
+
+#header {
+  color: @base-color * 3;
+  border-left: @the-border;
+  border-right: @the-border * 2;
+  height: 5px;
+}
+
+#footer { 
+  color: (@base-color + #111) * 1.5;
+}
+
+
+

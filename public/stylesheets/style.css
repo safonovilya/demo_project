@@ -1,0 +1,82 @@
+/* Variables */
+body {
+  padding: 50px;
+  width: 600px;
+  margin: 0 auto;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+body a {
+  color: #00b7ff;
+}
+body #comments {
+  background-color: #BADFE4;
+  -moz-border-radius: 15;
+  -webkit-border-radius: 15;
+  border-radius: 15;
+  padding: 15px;
+}
+#editor {
+  background-color: #E6DE8D;
+  padding: 15px;
+  -moz-border-radius: 15;
+  -webkit-border-radius: 15;
+  border-radius: 15;
+}
+#editor .author {
+  height: 19px;
+  font-size: 11px;
+  line-height: 19px;
+  width: 90%;
+  margin: 2px 5% 2px 5%;
+  color: #999966;
+}
+#editor #message {
+  font-size: 22px;
+  line-height: 30px;
+  width: 90%;
+  margin: 2px 5% 2px 5%;
+  color: #999966;
+}
+/********  Examples **********/
+#header {
+  color: #4d926f;
+}
+h2 {
+  color: #4d926f;
+}
+/* Mixins */
+#header {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+#footer {
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+/* Nested Rules */
+#header {
+  color: red;
+}
+#header a {
+  font-weight: bold;
+  text-decoration: none;
+}
+#header a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+/* Operations */
+#header {
+  color: #333333;
+  border-left: 1px;
+  border-right: 2px;
+  height: 5px;
+}
+#footer {
+  color: #333333;
+}
