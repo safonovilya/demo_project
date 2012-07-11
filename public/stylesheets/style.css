@@ -4,31 +4,39 @@ body {
   width: 600px;
   margin: 0 auto;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
+  -moz-border-radius: 5px px;
+  -webkit-border-radius: 5px px;
+  border-radius: 5px px;
 }
 body a {
   color: #00b7ff;
 }
 body #comments {
   background-color: #BADFE4;
-  -moz-border-radius: 15;
-  -webkit-border-radius: 15;
-  border-radius: 15;
+  -moz-border-radius: 15 px;
+  -webkit-border-radius: 15 px;
+  border-radius: 15 px;
   padding: 15px;
+}
+body #comments .thread:hover > .re {
+  display: inline;
+}
+body #comments .thread .re {
+  display: none;
+  cursor: pointer;
+  margin-left: 15px;
 }
 #editor {
   background-color: #E6DE8D;
   padding: 15px;
-  -moz-border-radius: 15;
-  -webkit-border-radius: 15;
-  border-radius: 15;
+  -moz-border-radius: 15 px;
+  -webkit-border-radius: 15 px;
+  border-radius: 15 px;
 }
 #editor .author {
-  height: 19px;
   font-size: 11px;
   line-height: 19px;
+  height: 19px;
   width: 90%;
   margin: 2px 5% 2px 5%;
   color: #999966;
@@ -40,43 +48,17 @@ body #comments {
   margin: 2px 5% 2px 5%;
   color: #999966;
 }
-/********  Examples **********/
-#header {
-  color: #4d926f;
+#editor #send {
+  font-size: 15.714285714285715px;
+  line-height: 23.714285714285715px;
+  -moz-border-radius: 6 px;
+  -webkit-border-radius: 6 px;
+  border-radius: 6 px;
+  float: right;
 }
-h2 {
-  color: #4d926f;
+#editor .preview {
+  display: block;
 }
-/* Mixins */
-#header {
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
-#footer {
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-}
-/* Nested Rules */
-#header {
-  color: red;
-}
-#header a {
-  font-weight: bold;
-  text-decoration: none;
-}
-#header a:hover {
-  color: #000;
-  text-decoration: underline;
-}
-/* Operations */
-#header {
-  color: #333333;
-  border-left: 1px;
-  border-right: 2px;
-  height: 5px;
-}
-#footer {
-  color: #333333;
+.clr {
+  clear: both;
 }

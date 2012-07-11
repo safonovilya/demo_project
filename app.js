@@ -1,16 +1,10 @@
-var express = require('express')
-  , t = require('./core/thread');
+var express = require('express'),
+    t = require('./core/thread'),
+    r = require('./core/repository'),
+    async = require('async');
 
 var app = module.exports = express.createServer();
     app.register(".jqtpl", require("jqtpl").express);
-
-var thread = new t.Thread('Message text','Author name'),
-    subThread =  new t.Thread('re Message text','second Author name'),
-    subSubThread =  new t.Thread('re re Message text','third Author name');
-
-thread.addChild(subThread);
-subThread.addChild(new t.Thread('re re Message text','third Author name'));
-thread.addChild(new t.Thread('re Message2 text','Author name'));
 
 // Configuration
 
@@ -25,8 +19,60 @@ app.configure(function(){
 
 // Routes
 app.get('/', function(req, res){
-    res.render('index', { thread: thread });
+    var repository = new r.Repository();
+    async.waterfall([
+        function(callback){
+            repository.open(callback);
+        },
+        function(callback){
+            repository.getMainThread(callback);
+        }
+    ],
+    function(error, thread){
+        if (error){
+            res.render('index', {thrad: null});
+        } else {
+            res.render('index', {thread: thread});
+        }
+    });
+
 });
+
+app.post('/add/', function(req, res){
+    console.log(req.body);
+
+    var repository = new r.Repository();
+    async.waterfall([
+        function(callback){
+            repository.open(callback);
+        },
+        function(callback){
+            if (req.body.rootID){
+                repository.findThreadByID(req.body.rootID, callback);
+            } else {
+                callback(null,null);
+            }
+        },
+        function(parentThread, callback){
+            console.log(parentThread);
+            var thread = new t.Thread(req.body.msgText, req.body.author, parentThread);
+            repository.insertThread(thread, callback);
+        },
+        function(thread){
+            res.partial('thread', { thread: thread });
+        }
+    ],
+    function(error, result){
+        repository.close();
+    }
+    );
+
+
+});
+app.get('/404', function(req, res){
+    throw new NotFound;
+});
+
 
 app.listen(3000, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

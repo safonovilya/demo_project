@@ -1,7 +1,9 @@
-<div id="comments">{{partial({thread: thread}) 'thread'}}</div>
-<div id="editor">
+{{if thread }}<div id="comments">{{partial({thread: thread}) 'thread'}}</div>{{/if}}
+<form id="editor" action="http://localhost:3000/add/" method="post">
 	<label for="message">Message:</label>
 	<textarea name="msgText" id="message" cols="30" rows="5"></textarea>
 	<label for="author">Author:</label>
 	<input type="text" class="author" name="author" />
-</div>
+	<input type="button" id="send" value="send" />
+	<div class="clr"></div>
+</form>

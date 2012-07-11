@@ -6,9 +6,13 @@
 @input_text_height: 22px;
 
 .rounded_corners (@radius: 5px) {
-    -moz-border-radius: @radius;
-    -webkit-border-radius: @radius;
-    border-radius: @radius;
+    -moz-border-radius: @radius px;
+    -webkit-border-radius: @radius px;
+    border-radius: @radius px;
+}
+.height_font_size(@ratio){
+    font-size: @input_text_height/@ratio;
+    line-height: @input_text_height/@ratio+8;
 }
 
 body {
@@ -24,6 +28,16 @@ body {
         background-color: #BADFE4;
         .rounded_corners(15);
         padding: 15px;
+        .thread{
+            &:hover>.re{
+                display: inline;
+            }
+        }
+        .thread .re{
+            display: none;
+            cursor: pointer;
+            margin-left: 15px;
+        }
     }
 }
 .editor_inputs(){
@@ -37,68 +51,24 @@ body {
     padding: 15px;
     .rounded_corners(15);
     .author{
+        .height_font_size(2);
         height: @input_text_height/2+8;
-        font-size: @input_text_height/2;
-        line-height: @input_text_height/2+8;
         .editor_inputs;
     }
     #message{
-        font-size: @input_text_height;
-        line-height: @input_text_height+8;
+        .height_font_size(1);
         .editor_inputs;
     }
-}
-
-
-/********  Examples **********/
-@brand_color: #4D926F;
-
-
-#header {
-    color: @brand_color;
-}
-
-h2 {
-    color: @brand_color;
-}
-
-/* Mixins */
-
-#header {
-  .rounded_corners;
-}
-
-#footer {
-  .rounded_corners(10px);
-}
-
-/* Nested Rules */
-#header {
-  color: red;
-  a {
-    font-weight: bold;
-    text-decoration: none;
-    &:hover {
-        color: #000;
-        text-decoration: underline;
+    #send{
+        .height_font_size(1.4);
+        .rounded_corners(6);
+        float: right;
     }
-  }
+    .preview{
+        display: block;
+    }
 }
 
-/* Operations */
-@the-border: 1px;
-@base-color: #111;
-
-#header {
-  color: @base-color * 3;
-  border-left: @the-border;
-  border-right: @the-border * 2;
-  height: 5px;
+.clr{
+    clear: both;
 }
-
-#footer { 
-  color: (@base-color + #111) * 1.5;
-}
-
-
-

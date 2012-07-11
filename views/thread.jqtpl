@@ -1,4 +1,5 @@
-<b>${thread.msgText}</b>&nbsp-&nbsp<i>${thread.author}</i>
+<div class="thread"{{if thread.id }} data-id="${thread.id}"{{/if}}>
+<b>${thread.msgText}</b>&nbsp-&nbsp<i>${thread.author}</i><span class="re">re</span>
 {{if thread.getChildCount() > 0 }}
     <ul>
         {{each(i, subThread) thread.child}}
@@ -8,3 +9,4 @@
         {{/each}}
     </ul>
 {{/if}}
+</div>

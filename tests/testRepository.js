@@ -22,7 +22,7 @@ exports.repositoryTest = {
     testThreadInsert: function(test){
         var self = this;
 
-        var thread = new t.Thread('msg','author');
+        var thread = new t.Thread('mainThread','author');
         async.waterfall([
                 function(callback) {
                     self.repository.insertThread(thread, callback);
@@ -116,7 +116,29 @@ exports.repositoryTest = {
             ],
             test.done
         );
+    },
+
+    testGetListThread: function(test){
+        var self = this,
+            thread = new t.Thread('mainThread', 'author');
+
+        async.waterfall(
+            [
+                function(callback){
+                    self.repository.insertThread(thread, callback);
+                },
+                function(threadInDB, callback){
+                    self.repository.getMainThread(callback);
+                },
+                function(mainThread, callback){
+                    test.equals(mainThread.msgText, "mainThread");
+                    callback();
+                }
+            ],
+            test.done
+        );
     }
+
 };
 /*
 {

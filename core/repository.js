@@ -2,6 +2,7 @@ var Class = require('./../libs/class');
 var t = require('./../core/thread');
 var mongodb = require('mongodb');
 var async = require('async');
+var ObjectID = require('mongodb').ObjectID;
 
 
 exports.Repository = Class.extend({
@@ -36,12 +37,13 @@ exports.Repository = Class.extend({
                     self.client.collection('threads', callback);
                 },
                 function(collection, callback){
-                    collection.find({$or: [{_id: id}, {parentID: id}, {parents: id.toString()}]}, {}, callback);
+                    collection.find({$or: [{_id: new ObjectID(id)}, {parentID: id}, {parents: id}]}, {}, callback);
                 },
                 function(cursor, callback){
                     cursor.toArray(callback);
                 },
                 function(docs){
+                    console.log(docs);
                     for(var i = 0; i < docs.length; i++){
                         if (docs[i]._id.toString() == id){
                             var thread = new t.Thread(docs[i].msgText, docs[i].author);
@@ -60,7 +62,7 @@ exports.Repository = Class.extend({
 
     buildTree: function(rootThread, arrayDocs){
         for(var i = 0; i < arrayDocs.length; i++){
-            if (arrayDocs[i].parentID.toString() == rootThread.id){
+            if (arrayDocs[i].parentID && arrayDocs[i].parentID.toString() == rootThread.id){
                 var thread = new t.Thread(arrayDocs[i].msgText, arrayDocs[i].author, rootThread);
                 thread.id = arrayDocs[i]._id;
                 arrayDocs.splice(i,1);
@@ -71,6 +73,37 @@ exports.Repository = Class.extend({
         return rootThread;
     },
 
+    getMainThread: function(callback){
+        var self = this;
+
+        async.waterfall(
+            [
+                function(callback){
+                    self.client.collection('threads', callback);
+                },
+                function(collection, callback){
+                    collection.find({}, {}, callback);
+                },
+                function(cursor, callback){
+                    cursor.toArray(callback);
+                },
+                function(docs){
+                    for(var i = 0; i < docs.length; i++){
+                        if (docs[i].parentID == null){
+                            var thread = new t.Thread(docs[i].msgText, docs[i].author);
+                            thread.id = docs[i]._id;
+                            docs.splice(i, 1);
+                            thread = self.buildTree(thread,docs);
+                            callback(null, thread);
+                            break;
+                        }
+                    }
+                    callback(-1);
+                }
+            ],
+            callback
+        );
+    },
 
     open: function(callback){
         var self = this;
