@@ -26,6 +26,9 @@ body #comments .thread .re {
   cursor: pointer;
   margin-left: 15px;
 }
+body #comments li {
+  list-style-type: decimal;
+}
 #editor {
   background-color: #E6DE8D;
   padding: 15px;

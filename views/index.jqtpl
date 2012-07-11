@@ -1,4 +1,4 @@
-{{if thread }}<div id="comments">{{partial({thread: thread}) 'thread'}}</div>{{/if}}
+<div id="comments">{{if thread }}{{partial({thread: thread}) 'thread'}}{{/if}}</div>
 <form id="editor" action="http://localhost:3000/add/" method="post">
 	<label for="message">Message:</label>
 	<textarea name="msgText" id="message" cols="30" rows="5"></textarea>
