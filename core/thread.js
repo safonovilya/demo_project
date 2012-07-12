@@ -33,10 +33,6 @@ exports.Thread = Class.extend({
             this.parents.push(this.parentID);
     },
 
-    _setID: function(id){
-        this.id = id;
-    },
-
     addChild: function( child ) {
         this.child.push(child);
     },
@@ -66,7 +62,9 @@ exports.Thread = Class.extend({
         return {
             msgText: this.msgText,
             author: this.author,
-            id: this.id
+            id: this.id,
+            childCount: this.getChildCount(),
+            child: this.child
         };
     }
 

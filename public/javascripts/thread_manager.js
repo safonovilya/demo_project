@@ -7,7 +7,7 @@ $(document).ready(function(){
             return false;
         }
         $.post(
-            "http://localhost:90/add/",
+            "http://192.168.50.61:90/add/",
             editor.serialize(),
             function(data){
                 var ul = $(".thread[data-id="+editor.find('input#rootID').val()+"]>ul");

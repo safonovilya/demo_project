@@ -2,17 +2,19 @@
 body {
   padding: 50px;
   width: 600px;
-  margin: 0 auto;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  -moz-border-radius: 5px px;
-  -webkit-border-radius: 5px px;
-  border-radius: 5px px;
+  margin: 0 auto;
 }
 body a {
   color: #00b7ff;
 }
 body #comments {
-  background-color: #BADFE4;
+  margin: 20px 10px;
+  padding: 25px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #323232;
+  -webkit-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
   -moz-border-radius: 15 px;
   -webkit-border-radius: 15 px;
   border-radius: 15 px;
@@ -30,8 +32,13 @@ body #comments li {
   list-style-type: decimal;
 }
 #editor {
-  background-color: #E6DE8D;
   padding: 15px;
+  margin: 20px 10px;
+  padding: 25px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #323232;
+  -webkit-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
   -moz-border-radius: 15 px;
   -webkit-border-radius: 15 px;
   border-radius: 15 px;
@@ -54,12 +61,22 @@ body #comments li {
 #editor #send {
   font-size: 15.714285714285715px;
   line-height: 23.714285714285715px;
+  margin: 20px 10px;
+  padding: 25px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #323232;
+  -webkit-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
   -moz-border-radius: 6 px;
   -webkit-border-radius: 6 px;
   border-radius: 6 px;
   float: right;
+  color: white;
 }
 #editor .preview {
+  display: block;
+}
+#editor * {
   display: block;
 }
 .clr {

@@ -1,4 +1,3 @@
-
 var t = require('./../core/thread');
 var async = require('async');
 var r = require('./../core/repository');
@@ -26,12 +25,13 @@ exports.repositoryTest = {
     testThreadInsert: function(test){
         var self = this;
 
-        var thread = new t.Thread('mainThread','author');
+        var thread = new t.Thread('testThreadInsert','author');
         async.waterfall([
                 function(callback) {
                     self.repository.insertThread(thread, callback);
                 },
                 function(threadInDB, callback) {
+                    console.log(threadInDB.id);
                     self.repository.findThreadByID(threadInDB.id, callback);
                 },
                 function(threadFound, callback) {
@@ -47,14 +47,14 @@ exports.repositoryTest = {
 
     testThreadSaveTree: function(test){
         var self = this;
-        var thread = new t.Thread('msg', 'author');
+        var thread = new t.Thread('msg', 'testThreadSaveTree');
         async.waterfall([
             function(callback){
                 self.repository.insertThread(thread, callback);
             },
             function(threadInDB, callback){
                 thread = threadInDB;
-                var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
+                var threadChild = new t.Thread('reMsg', 'new testThreadSaveTree', threadInDB);
                 self.repository.insertThread(threadChild, callback);
             },
             function(threadChildInDB, callback){

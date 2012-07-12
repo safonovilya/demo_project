@@ -51,59 +51,58 @@ exports.Repository = Class.extend({
                     self.client.collection('threads', callback);
                 },
                 function(collection, callback){
-                    collection.find({$or: [{_id: new ObjectID(id)}, {parentID: new ObjectID(id)}, {parents: id}]}, {}, callback);
+                    collection.find({$or: [{_id: new ObjectID(id)}, {parentID: new ObjectID(id)}, {parents: new ObjectID(id)}]}, {}, callback);
                 },
                 function(cursor, callback){
                     cursor.toArray(callback);
                 },
                 function(docs ,callback){
-
-                    console.log(id);
-                    console.log(docs);
                     var thread;
-                    for(var i = 0; i < docs.length; i++){
-                        if (docs[i]._id.toString() == id.toString()){
-                            thread = new t.Thread();
-                            thread.setFromDoc(docs[i]);
-                            docs.splice(i, 1);
-                            thread = self.buildTree(thread,docs);
-                            break;
+                    async.forEach(
+                        docs,
+                        function(item, callback){
+                            if (item._id.toString() == id){
+                                thread = new t.Thread();
+                                thread.setFromDoc(item);
+                                self.findChildren(thread, docs, function(child){
+                                    callback();
+                                });
+                            } else {
+                                callback();
+                            }
+                        },
+                        function(error){
+                            callback(null, thread);
                         }
-                    }
-                    callback(null, thread);
+                    );
                 }
             ],
             callback
         );
     },
 
-    buildTree: function(rootThread, arrayDocs){
+    findChildren: function(rootThread, docs, callback){
         var self = this;
+        var children = [];
         async.forEach(
-            arrayDocs,
+            docs,
             function(item, callback){
                 if (item.parentID && item.parentID.toString() == rootThread.id){
                     var thread = new t.Thread();
                     thread.setFromDoc(item);
-                    thread = self.buildTree(thread,arrayDocs);
-                    rootThread.addChild(thread);
+                    self.findChildren(thread, docs, function(child){
+                        callback();
+                    });
+                    children.push(thread);
+                } else {
+                    callback();
                 }
-                callback();
             },
             function(error){
-                return rootThread;
+                rootThread.child = children;
+                callback(rootThread);
             }
         );
-//        for(var i = 0; i < arrayDocs.length; i++){
-//            if (arrayDocs[i].parentID && arrayDocs[i].parentID.toString() == rootThread.id){
-//                var thread = new t.Thread();
-//                thread.setFromDoc(arrayDocs[i]);
-//                arrayDocs.splice(i, 1);
-//                thread = this.buildTree(thread,arrayDocs);
-//                rootThread.addChild(thread);
-//            }
-//        }
-//        return rootThread;
     },
 
     getMainThread: function(callback){
@@ -122,16 +121,28 @@ exports.Repository = Class.extend({
                 },
                 function(docs){
                     var thread;
-                    for(var i = 0; i < docs.length; i++){
-                        if (docs[i].parentID == null){
-                            thread = new t.Thread(docs[i].msgText, docs[i].author);
-                            thread.id = docs[i]._id;
-                            docs.splice(i, 1);
-                            thread = self.buildTree(thread,docs);
-                            break;
+
+                    async.forEach(
+                        docs,
+                        function(item, callback){
+                            if (item.parentID == null){
+                                thread = new t.Thread(item.msgText, item.author);
+                                thread.setFromDoc(item);
+                                self.findChildren(thread, docs, function(child){
+                                    callback();
+                                });
+                            } else {
+                                callback();
+                            }
+                        },
+                        function(error){
+                            if (thread){
+                                callback(null, thread);
+                            } else {
+                                callback("nobody");
+                            }
                         }
-                    }
-                    callback(null, thread);
+                    );
                 }
             ],
             callback
