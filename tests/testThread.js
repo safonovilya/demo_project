@@ -39,11 +39,22 @@ exports.StructureTest = {
     },
 
     testThreadConstructor: function(test){
-        console.log('testThreadConstructor');
-        var thread = new t.Thread("msg", 'author', null),
-            secondThread = new t.Thread("msg", 'author', 1);
+        var thread = new t.Thread("msg", 'author');
+        thread.id = 1;
+        var secondThread = new t.Thread("msg", 'author', thread);
         test.equals(thread.parentID, null);
         test.equals(secondThread.parentID, 1);
         test.done();
+    },
+
+    testParentsId: function(test){
+        var thread = new t.Thread("1", 'author');
+        thread.id = 1;
+        var secondThread = new t.Thread("2", 'author', thread);
+        secondThread.id = 2;
+        var firdThread = new t.Thread("3", 'author', secondThread);
+        test.equals(firdThread.parents.length, 2);
+        test.done();
     }
+
 };

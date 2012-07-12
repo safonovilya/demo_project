@@ -5,7 +5,13 @@
 @habr_color: #996;
 @input_text_height: 22px;
 
-.rounded_corners (@radius: 5px) {
+.cool_border (@radius: 5px) {
+    margin: 20px 10px;
+    padding: 25px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #323232;
+    -webkit-box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+    -moz-box-shadow: 1px 2px 2px rgba(0,0,0,0.6);
     -moz-border-radius: @radius px;
     -webkit-border-radius: @radius px;
     border-radius: @radius px;
@@ -18,15 +24,13 @@
 body {
     padding: 50px;
     width: 600px;
-    margin: 0 auto;
     font: @font;
+    margin: 0 auto;
     a {
         color: @link_color;
     }
-    .rounded_corners;
     #comments{
-        background-color: #BADFE4;
-        .rounded_corners(15);
+        .cool_border(15);
         padding: 15px;
         .thread{
             &:hover>.re{
@@ -40,7 +44,6 @@ body {
         }
         li{
             list-style-type: decimal;
-
         }
     }
 }
@@ -51,9 +54,8 @@ body {
 }
 
 #editor{
-    background-color: #E6DE8D;
     padding: 15px;
-    .rounded_corners(15);
+    .cool_border(15);
     .author{
         .height_font_size(2);
         height: @input_text_height/2+8;
@@ -65,10 +67,14 @@ body {
     }
     #send{
         .height_font_size(1.4);
-        .rounded_corners(6);
+        .cool_border(6);
         float: right;
+        color: white;
     }
     .preview{
+        display: block;
+    }
+    *{
         display: block;
     }
 }

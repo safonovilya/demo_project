@@ -1,3 +1,4 @@
+
 var t = require('./../core/thread');
 var async = require('async');
 var r = require('./../core/repository');
@@ -5,14 +6,17 @@ var r = require('./../core/repository');
 exports.repositoryTest = {
 
     setUp: function(done) {
+        var self = this;
         this.repository = new r.Repository();
-        this.repository.open(function(error){
-            if (error){
-                test.ok(false);
-                test.done();
+        async.waterfall([
+            function(callback) {
+                self.repository.open(callback);
+            },
+            function (callback) {
+                self.repository.removeAllThreads(callback);
             }
-            done();
-        });
+        ],
+        done);
     },
 
     tearDown: function(done) {
@@ -31,7 +35,9 @@ exports.repositoryTest = {
                     self.repository.findThreadByID(threadInDB.id, callback);
                 },
                 function(threadFound, callback) {
+                    console.log(threadFound);
                     test.equals(threadFound.msgText, thread.msgText);
+                    test.equals(threadFound.parents.length, 0);
                     callback();
                 }
             ],
@@ -80,6 +86,7 @@ exports.repositoryTest = {
                     self.repository.findThreadByID(thread.id, callback);
                 },
                 function(threadTree, callback){
+                    console.log(threadTree);
                     test.equals(threadTree.getChild(0).parentID.toString(), threadChild.parentID.toString());
                     callback();
                 }
@@ -99,17 +106,22 @@ exports.repositoryTest = {
                 },
                 function(threadInDB, callback){
                     thread = threadInDB;
+                    console.log(threadInDB);
                     var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
                     self.repository.insertThread(threadChild, callback);
                 },
                 function(threadChildInDB, callback){
+                    console.log(threadChildInDB);
                     var subThreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB);
                     self.repository.insertThread(subThreadChild, callback);
                 },
                 function(threadSubChildInDB, callback){
+                    console.log(threadSubChildInDB);
                     self.repository.findThreadByID(thread.id, callback);
                 },
                 function(threadTree, callback){
+                    console.log(threadTree);
+                    test.equals(threadTree.parents.length, 0);
                     test.equals(threadTree.getChild(0).getChildCount(), 1);
                     callback();
                 }
@@ -137,15 +149,45 @@ exports.repositoryTest = {
             ],
             test.done
         );
+    },
+
+    testGetMainThread: function(test){
+        var self = this,
+            thread = new t.Thread('msg', 'author');
+
+        async.waterfall(
+            [
+                function(callback){
+                    self.repository.insertThread(thread, callback);
+                },
+                function(threadInDB, callback){
+                    thread = threadInDB;
+                    var threadChild = new t.Thread('reMsg', 'new author', threadInDB);
+                    self.repository.insertThread(threadChild, callback);
+                },
+                function(threadChildInDB, callback){
+                    var subThreadChild = new t.Thread('reReMsg', 'new new author', threadChildInDB);
+                    self.repository.insertThread(subThreadChild, callback);
+                },
+                function(threadSubChildInDB, callback){
+                    var threadChild = new t.Thread('reMsg', 'new author', thread);
+                    self.repository.insertThread(threadChild, callback);
+                },
+                function(threadSubChildInDB, callback){
+                    self.repository.getMainThread(callback);
+                },
+                function(threadTree, callback){
+                    console.log(threadTree);
+                    test.equals(threadTree.parents.length, 0);
+                    test.equals(threadTree.getChildCount(), 2);
+                    test.equals(threadTree.getChild(0).parents.length, 1);
+                    test.equals(threadTree.getChild(0).getChild(0).parents.length, 2);
+                    callback();
+                }
+            ],
+            test.done
+        );
     }
 
+
 };
-/*
-{
-    message: '',
-    authr: '',
-    _id: 11110,
-    Parent: ObjectId(11111),
-    Parents: [ObjectId(11111), ObjectId(11113), ObjectId(11112)]
-}
-*/

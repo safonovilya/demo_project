@@ -30,7 +30,7 @@ app.get('/', function(req, res){
     ],
     function(error, thread){
         if (error){
-            res.render('index', {thrad: null});
+            res.render('index', {thread: null});
         } else {
             res.render('index', {thread: thread});
         }
@@ -54,7 +54,6 @@ app.post('/add/', function(req, res){
             }
         },
         function(parentThread, callback){
-            console.log(parentThread);
             var thread = new t.Thread(req.body.msgText, req.body.author, parentThread);
             repository.insertThread(thread, callback);
         },
@@ -74,6 +73,6 @@ app.get('/404', function(req, res){
 });
 
 
-app.listen(3000, function(){
+app.listen(90, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
